@@ -3,146 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logix Code Studio</title>
+    <title>Logix Web AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #1e1e1e; color: #d4d4d4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; overflow: hidden; }
-        .activity-bar { width: 50px; background-color: #333333; }
-        .sidebar { width: 250px; background-color: #252526; }
-        .editor { background-color: #1e1e1e; }
-        .status-bar { height: 25px; background-color: #007acc; }
-        .line-numbers { color: #858585; text-align: right; padding-right: 15px; user-select: none; }
-        .cursor-blink { border-left: 2px solid #fff; animation: blink 1s step-end infinite; }
-        @keyframes blink { 50% { border-color: transparent; } }
-        .terminal { background-color: #1e1e1e; border-top: 1px solid #333; height: 200px; }
-        input { background: transparent; border: none; outline: none; color: #9cdcfe; width: 100%; font-family: monospace; }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top left, #0f172a, #020617);
+            color: #f8fafc;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .message-bubble {
+            max-width: 85%;
+            animation: fadeIn 0.4s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex items-center justify-center p-0 md:p-6">
 
-<div id="app" class="flex flex-col h-screen">
+<div id="app" class="w-full max-w-5xl h-screen md:h-[90vh] flex flex-col glass-panel md:rounded-3xl shadow-2xl overflow-hidden">
     
-    <div class="flex flex-1 overflow-hidden">
-        
-        <div class="activity-bar flex flex-col items-center py-4 space-y-6 text-gray-400">
-            <i class="fas fa-copy text-xl text-white"></i>
-            <i class="fas fa-search text-xl hover:text-white cursor-pointer"></i>
-            <i class="fas fa-code-branch text-xl hover:text-white cursor-pointer"></i>
-            <i class="fas fa-th-large text-xl hover:text-white cursor-pointer"></i>
-            <i class="fas fa-robot text-xl text-blue-400"></i>
+    <header class="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <span class="font-bold text-white">LX</span>
+            </div>
+            <div>
+                <h1 class="text-lg font-extrabold tracking-tight">LOGIX <span class="text-indigo-400">WEB</span></h1>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Coastal Intelligence Active</p>
+            </div>
         </div>
+        <button @click="resetChat" class="text-slate-400 hover:text-white transition-colors text-sm font-medium">Reset</button>
+    </header>
 
-        <div class="sidebar border-r border-black p-4">
-            <h2 class="text-xs font-bold uppercase mb-4 tracking-widest text-gray-500">Explorer</h2>
-            <div class="space-y-2 text-sm">
-                <div class="flex items-center text-blue-400"><i class="fas fa-chevron-down mr-2 text-[10px]"></i> LOGIX-PROJECT</div>
-                <div class="ml-4 flex items-center hover:bg-gray-700 p-1 rounded cursor-pointer">
-                    <i class="fab fa-html5 mr-2 text-orange-500"></i> index.html
-                </div>
-                <div class="ml-4 flex items-center hover:bg-gray-700 p-1 rounded cursor-pointer">
-                    <i class="fab fa-js mr-2 text-yellow-400"></i> logix-core.ai
-                </div>
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 custom-scroll" id="chat-box">
+        <div v-for="(msg, index) in chatHistory" :key="index" 
+             :class="['flex w-full', msg.role === 'user' ? 'justify-end' : 'justify-start']">
+            
+            <div :class="[
+                'message-bubble p-4 rounded-2xl shadow-sm',
+                msg.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-slate-800/80 text-slate-100 border border-white/5 rounded-tl-none'
+            ]">
+                <p class="text-sm leading-relaxed">{{ msg.content }}</p>
             </div>
         </div>
 
-        <div class="editor flex-1 flex flex-col">
-            <div class="flex bg-[#2d2d2d] text-xs">
-                <div class="bg-[#1e1e1e] px-4 py-2 border-t-2 border-blue-500 flex items-center">
-                    <i class="fab fa-js mr-2 text-yellow-400"></i> logix-core.ai <i class="fas fa-times ml-3 opacity-50"></i>
-                </div>
-            </div>
-
-            <div class="flex-1 p-4 font-mono text-sm overflow-y-auto flex">
-                <div class="line-numbers text-right">
-                    <div v-for="n in 20" :key="n">{{ n }}</div>
-                </div>
-                <div class="flex-1 text-blue-300">
-                    <div v-for="(line, i) in chatLog" :key="i">
-                        <span class="text-gray-500">// Logix: {{ line.role }}</span><br>
-                        <span :class="line.role === 'ai' ? 'text-green-400' : 'text-blue-200'">{{ line.text }}</span>
-                    </div>
-                    <div class="mt-2 flex">
-                        <span class="text-yellow-400 mr-2">> </span>
-                        <input v-model="userInput" @keyup.enter="submitQuery" placeholder="Type command..." autofocus>
-                        <span class="cursor-blink"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="terminal p-4 font-mono text-xs overflow-y-auto">
-                <div class="flex space-x-4 mb-2 border-b border-gray-700 pb-1">
-                    <span class="border-b border-white pb-1">TERMINAL</span>
-                    <span class="text-gray-500">OUTPUT</span>
-                    <span class="text-gray-500">DEBUG CONSOLE</span>
-                </div>
-                <div class="text-green-500">[LOGIX] Coastal Logic Engine initialized...</div>
-                <div class="text-gray-400">[SYS] {{ statusMessage }}</div>
+        <div v-if="isThinking" class="flex justify-start">
+            <div class="bg-slate-800/80 p-4 rounded-2xl rounded-tl-none border border-white/5 flex gap-1">
+                <div class="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce"></div>
+                <div class="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                <div class="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
             </div>
         </div>
-    </div>
+    </main>
 
-    <div class="status-bar flex justify-between items-center px-3 text-[11px] text-white">
-        <div class="flex items-center space-x-4">
-            <div class="hover:bg-white/20 px-1 cursor-pointer"><i class="fas fa-code-branch mr-1"></i> main*</div>
-            <div class="hover:bg-white/20 px-1 cursor-pointer"><i class="fas fa-sync mr-1"></i> Refresh</div>
+    <footer class="p-4 md:p-6 bg-white/5 border-t border-white/10">
+        <div class="relative max-w-4xl mx-auto">
+            <input 
+                v-model="input" 
+                @keyup.enter="handleSend"
+                type="text" 
+                placeholder="Ask Logix anything..." 
+                class="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-4 pl-6 pr-16 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+            >
+            <button 
+                @click="handleSend"
+                class="absolute right-2 top-2 bottom-2 px-4 bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all active:scale-95"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                </svg>
+            </button>
         </div>
-        <div class="flex items-center space-x-4">
-            <span>UTF-8</span>
-            <span>HTML/Logix</span>
-            <i class="fas fa-bell"></i>
-        </div>
-    </div>
+    </header>
 </div>
 
 <script>
-    const { createApp, ref } = Vue;
+const { createApp, ref, nextTick } = Vue;
 
-    createApp({
-        setup() {
-            const userInput = ref('');
-            const statusMessage = ref('Waiting for input...');
-            const chatLog = ref([
-                { role: 'ai', text: 'System ready. Enter "help" to see coastal commands.' }
-            ]);
+createApp({
+    setup() {
+        const input = ref('');
+        const isThinking = ref(false);
+        const chatHistory = ref([
+            { role: 'bot', content: "Welcome to Logix Web. My memory is synced and my Coastal database is ready. How can I help you today?" }
+        ]);
 
-            // HUGE "COASTAL" DATA SET
-            const database = {
-                "help": "Available: build, logic, weather, clear, system-info, about.",
-                "build": "Initializing Web App Builder... HTML Template created in memory.",
-                "logic": "Coastal Logic: (Input A XOR Input B) results in High signal if states differ.",
-                "weather": "Coastal Data: 22°C, Sunny, Wind 5km/h Northwest.",
-                "system-info": "Version: 3.5.0-Flash | Memory: Stable | CPU: Optimized.",
-                "about": "I am Logix, a VS Code inspired AI designed for local web app simulation."
-            };
+        const scroll = async () => {
+            await nextTick();
+            const el = document.getElementById('chat-box');
+            el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+        };
 
-            const submitQuery = () => {
-                const cmd = userInput.value.trim().toLowerCase();
-                if (!cmd) return;
+        const handleSend = () => {
+            const text = input.value.trim();
+            if (!text) return;
 
-                // Add User message
-                chatLog.value.push({ role: 'user', text: userInput.value });
-                statusMessage.value = `Processing "${cmd}"...`;
+            chatHistory.value.push({ role: 'user', content: text });
+            input.value = '';
+            isThinking.value = true;
+            scroll();
 
-                // Logic Processing
-                setTimeout(() => {
-                    let response = database[cmd] || `Error: Command "${cmd}" not found in Coastal Database.`;
-                    
-                    if(cmd.includes("clear")) {
-                        chatLog.value = [{ role: 'ai', text: 'Console cleared.' }];
-                    } else {
-                        chatLog.value.push({ role: 'ai', text: response });
-                    }
-                    
-                    statusMessage.value = "Ready";
-                    userInput.value = '';
-                }, 400);
-            };
+            // Web Logic Engine (Coastal Database)
+            setTimeout(() => {
+                let response = "I'm processing that through my coastal nodes. Can you tell me more?";
+                const lowText = text.toLowerCase();
 
-            return { userInput, chatLog, statusMessage, submitQuery };
-        }
-    }).mount('#app');
+                if (lowText.includes("help")) response = "I can help you build logic, write code, or analyze data. Just ask!";
+                if (lowText.includes("who are you")) response = "I am Logix, a web-based AI assistant built for logical processing.";
+                if (lowText.includes("weather")) response = "I don't have live GPS, but the coastal data looks clear and sunny for development!";
+                if (lowText.includes("shift")) response = "Shift complete! We are now fully optimized for the Web environment.";
+
+                chatHistory.value.push({ role: 'bot', content: response });
+                isThinking.value = false;
+                scroll();
+            }, 1000);
+        };
+
+        const resetChat = () => {
+            chatHistory.value = [{ role: 'bot', content: "System reset. Memory cleared. What's next?" }];
+        };
+
+        return { input, chatHistory, isThinking, handleSend, resetChat };
+    }
+}).mount('#app');
 </script>
 
 </body>
