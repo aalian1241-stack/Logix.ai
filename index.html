@@ -3,119 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logix Web App | Dashboard</title>
+    <title>Logix Chatbot Interface</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
-        .led-glow {
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
-        }
-        .gate-card {
-            transition: all 0.3s ease;
-        }
+        .chat-gradient { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen">
+<body class="chat-gradient text-gray-100 min-h-screen flex items-center justify-center p-4">
 
-<div id="app" class="container mx-auto px-4 py-10">
-    <header class="mb-10 text-center">
-        <h1 class="text-4xl font-extrabold text-blue-500 tracking-tight">LOGIX <span class="text-white">OS</span></h1>
-        <p class="text-gray-400 mt-2">Real-time Logic Processing Unit</p>
+<div id="app" class="w-full max-w-2xl h-[80vh] flex flex-col bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 overflow-hidden">
+    
+    <header class="p-4 bg-gray-900 border-b border-gray-700 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-white shadow-lg">L</div>
+            <div>
+                <h1 class="text-lg font-bold leading-tight">Logix AI</h1>
+                <p class="text-xs text-green-400 flex items-center">
+                    <span class="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></span> Online
+                </p>
+            </div>
+        </div>
+        <button @click="clearChat" class="text-xs text-gray-400 hover:text-white transition">Clear Chat</button>
     </header>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-            <h2 class="text-xl font-semibold mb-4 flex items-center">
-                <span class="w-3 h-3 bg-blue-500 rounded-full mr-2"></span> System Inputs
-            </h2>
-            <div class="space-y-4">
-                <div v-for="(val, key) in inputs" :key="key" class="flex items-center justify-between p-4 bg-gray-700 rounded-lg">
-                    <span class="font-mono text-lg">Digital_In_{{ key }}</span>
-                    <button 
-                        @click="inputs[key] = !inputs[key]"
-                        :class="inputs[key] ? 'bg-green-500' : 'bg-gray-600'"
-                        class="px-6 py-2 rounded-full font-bold transition-colors shadow-inner"
-                    >
-                        {{ inputs[key] ? 'HIGH' : 'LOW' }}
-                    </button>
-                </div>
+    <main class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar" id="chat-window">
+        <div v-for="(msg, index) in messages" :key="index" 
+             :class="['flex', msg.role === 'user' ? 'justify-end' : 'justify-start']">
+            
+            <div :class="[
+                'max-w-[80%] px-4 py-2 rounded-2xl text-sm leading-relaxed shadow-sm',
+                msg.role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-gray-700 text-gray-200 rounded-tl-none'
+            ]">
+                {{ msg.content }}
             </div>
         </div>
 
-        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700">
-            <h2 class="text-xl font-semibold mb-4 flex items-center">
-                <span class="w-3 h-3 bg-purple-500 rounded-full mr-2"></span> Logic Processing
-            </h2>
-            <div class="space-y-4">
-                <div class="p-4 rounded-lg border-l-4" :class="logicOutput.AND ? 'border-green-500 bg-gray-700' : 'border-red-500 bg-gray-900'">
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold">AND GATE</span>
-                        <span class="text-xs font-mono">In_A & In_B</span>
-                    </div>
-                    <div class="text-2xl mt-1">{{ logicOutput.AND ? 'TRUE' : 'FALSE' }}</div>
-                </div>
-
-                <div class="p-4 rounded-lg border-l-4" :class="logicOutput.OR ? 'border-green-500 bg-gray-700' : 'border-red-500 bg-gray-900'">
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold">OR GATE</span>
-                        <span class="text-xs font-mono">In_A | In_B</span>
-                    </div>
-                    <div class="text-2xl mt-1">{{ logicOutput.OR ? 'TRUE' : 'FALSE' }}</div>
-                </div>
-
-                <div class="p-4 rounded-lg border-l-4" :class="logicOutput.XOR ? 'border-green-500 bg-gray-700' : 'border-red-500 bg-gray-900'">
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold">XOR GATE</span>
-                        <span class="text-xs font-mono">In_A ^ In_B</span>
-                    </div>
-                    <div class="text-2xl mt-1">{{ logicOutput.XOR ? 'TRUE' : 'FALSE' }}</div>
-                </div>
+        <div v-if="isTyping" class="flex justify-start">
+            <div class="bg-gray-700 px-4 py-3 rounded-2xl rounded-tl-none flex space-x-1">
+                <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
+                <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-.3s]"></div>
+                <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-.5s]"></div>
             </div>
         </div>
+    </main>
 
-        <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 flex flex-col items-center justify-center">
-            <h2 class="text-xl font-semibold mb-8">Master Output Status</h2>
-            <div 
-                class="w-32 h-32 rounded-full border-8 border-gray-900 flex items-center justify-center transition-all duration-500"
-                :class="logicOutput.AND ? 'bg-green-500 led-glow border-green-400' : 'bg-gray-900 border-gray-700'"
+    <footer class="p-4 bg-gray-900 border-t border-gray-700">
+        <form @submit.prevent="sendMessage" class="flex space-x-2">
+            <input 
+                v-model="userInput"
+                type="text" 
+                placeholder="Type your logic query..." 
+                class="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500 transition text-sm"
+                :disabled="isTyping"
             >
-                <span class="text-xs uppercase font-black" :class="logicOutput.AND ? 'text-green-900' : 'text-gray-600'">
-                    {{ logicOutput.AND ? 'Active' : 'Standby' }}
-                </span>
-            </div>
-            <p class="mt-6 text-sm text-gray-400 text-center italic">
-                Master output triggers only when <br> <strong>Input A AND Input B</strong> are HIGH.
-            </p>
-        </div>
-
-    </div>
+            <button 
+                type="submit"
+                :disabled="isTyping || !userInput.trim()"
+                class="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed px-5 py-2 rounded-xl transition font-medium text-sm"
+            >
+                Send
+            </button>
+        </form>
+    </footer>
 </div>
 
 <script>
-    const { createApp, reactive, computed } = Vue;
+    const { createApp, ref, nextTick } = Vue;
 
     createApp({
         setup() {
-            // State: Digital Inputs
-            const inputs = reactive({
-                A: false,
-                B: false
-            });
+            const userInput = ref('');
+            const isTyping = ref(false);
+            const messages = ref([
+                { role: 'bot', content: 'Hello! I am Logix. How can I assist you with your logic or code today?' }
+            ]);
 
-            // Logic Computations
-            const logicOutput = computed(() => {
-                return {
-                    AND: inputs.A && inputs.B,
-                    OR: inputs.A || inputs.B,
-                    XOR: inputs.A !== inputs.B
-                }
-            });
+            const scrollToBottom = async () => {
+                await nextTick();
+                const container = document.getElementById('chat-window');
+                container.scrollTop = container.scrollHeight;
+            };
 
-            return {
-                inputs,
-                logicOutput
-            }
+            const sendMessage = async () => {
+                const text = userInput.value.trim();
+                if (!text) return;
+
+                // Add User Message
+                messages.value.push({ role: 'user', content: text });
+                userInput.value = '';
+                await scrollToBottom();
+
+                // Trigger Bot Response
+                isTyping.value = true;
+                
+                // Simulate network/logic delay
+                setTimeout(() => {
+                    const response = getBotResponse(text);
+                    messages.value.push({ role: 'bot', content: response });
+                    isTyping.value = false;
+                    scrollToBottom();
+                }, 1200);
+            };
+
+            const getBotResponse = (input) => {
+                const lowerInput = input.toLowerCase();
+                if (lowerInput.includes('hello') || lowerInput.includes('hi')) return "Greetings! Ready to process some logic.";
+                if (lowerInput.includes('time')) return "The current system time is " + new Date().toLocaleTimeString();
+                if (lowerInput.includes('help')) return "I can help with code snippets, logic gates, or troubleshooting.";
+                return "Interesting request. As Logix, I'm processing: '" + input + "'. How should we proceed?";
+            };
+
+            const clearChat = () => {
+                messages.value = [{ role: 'bot', content: 'History cleared. System reset.' }];
+            };
+
+            return { userInput, messages, isTyping, sendMessage, clearChat };
         }
     }).mount('#app');
 </script>
