@@ -3,141 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logix Web AI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>Logix.ai Multi-Bot</title>
+    
     <style>
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: radial-gradient(circle at top left, #0f172a, #020617);
-            color: #f8fafc;
-        }
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .message-bubble {
-            max-width: 85%;
-            animation: fadeIn 0.4s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; padding: 20px; }
+        #chat-container { width: 400px; background: white; border-radius: 10px; shadow: 0 4px 10px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #ddd; }
+        #chat-window { height: 400px; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .message { padding: 8px 12px; border-radius: 15px; max-width: 80%; }
+        .user { align-self: flex-end; background: #007bff; color: white; }
+        .bot { align-self: flex-start; background: #e9e9eb; color: #333; }
+        #input-area { display: flex; border-top: 1px solid #ddd; }
+        input { flex: 1; padding: 10px; border: none; outline: none; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-0 md:p-6">
+<body>
 
-<div id="app" class="w-full max-w-5xl h-screen md:h-[90vh] flex flex-col glass-panel md:rounded-3xl shadow-2xl overflow-hidden">
-    
-    <header class="px-6 py-4 border-b border-white/10 flex justify-between items-center bg-white/5">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span class="font-bold text-white">LX</span>
-            </div>
-            <div>
-                <h1 class="text-lg font-extrabold tracking-tight">LOGIX <span class="text-indigo-400">WEB</span></h1>
-                <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Coastal Intelligence Active</p>
-            </div>
-        </div>
-        <button @click="resetChat" class="text-slate-400 hover:text-white transition-colors text-sm font-medium">Reset</button>
-    </header>
-
-    <main class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 custom-scroll" id="chat-box">
-        <div v-for="(msg, index) in chatHistory" :key="index" 
-             :class="['flex w-full', msg.role === 'user' ? 'justify-end' : 'justify-start']">
-            
-            <div :class="[
-                'message-bubble p-4 rounded-2xl shadow-sm',
-                msg.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-slate-800/80 text-slate-100 border border-white/5 rounded-tl-none'
-            ]">
-                <p class="text-sm leading-relaxed">{{ msg.content }}</p>
-            </div>
-        </div>
-
-        <div v-if="isThinking" class="flex justify-start">
-            <div class="bg-slate-800/80 p-4 rounded-2xl rounded-tl-none border border-white/5 flex gap-1">
-                <div class="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce"></div>
-                <div class="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                <div class="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
-            </div>
-        </div>
-    </main>
-
-    <footer class="p-4 md:p-6 bg-white/5 border-t border-white/10">
-        <div class="relative max-w-4xl mx-auto">
-            <input 
-                v-model="input" 
-                @keyup.enter="handleSend"
-                type="text" 
-                placeholder="Ask Logix anything..." 
-                class="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-4 pl-6 pr-16 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
-            >
-            <button 
-                @click="handleSend"
-                class="absolute right-2 top-2 bottom-2 px-4 bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all active:scale-95"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
-                </svg>
-            </button>
-        </div>
-    </header>
+<div id="chat-container">
+    <div id="chat-window">
+        <div class="message bot">Hello! I am your Logix-powered assistant. How can I help you today?</div>
+    </div>
+    <div id="input-area">
+        <input type="text" id="user-input" placeholder="Ask me anything...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
 </div>
 
 <script>
-const { createApp, ref, nextTick } = Vue;
+    async function sendMessage() {
+        const inputField = document.getElementById('user-input');
+        const chatWindow = document.getElementById('chat-window');
+        const message = inputField.value.trim();
 
-createApp({
-    setup() {
-        const input = ref('');
-        const isThinking = ref(false);
-        const chatHistory = ref([
-            { role: 'bot', content: "Welcome to Logix Web. My memory is synced and my Coastal database is ready. How can I help you today?" }
-        ]);
+        if (!message) return;
 
-        const scroll = async () => {
-            await nextTick();
-            const el = document.getElementById('chat-box');
-            el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-        };
+        // Display User Message
+        appendMessage(message, 'user');
+        inputField.value = '';
 
-        const handleSend = () => {
-            const text = input.value.trim();
-            if (!text) return;
-
-            chatHistory.value.push({ role: 'user', content: text });
-            input.value = '';
-            isThinking.value = true;
-            scroll();
-
-            // Web Logic Engine (Coastal Database)
-            setTimeout(() => {
-                let response = "I'm processing that through my coastal nodes. Can you tell me more?";
-                const lowText = text.toLowerCase();
-
-                if (lowText.includes("help")) response = "I can help you build logic, write code, or analyze data. Just ask!";
-                if (lowText.includes("who are you")) response = "I am Logix, a web-based AI assistant built for logical processing.";
-                if (lowText.includes("weather")) response = "I don't have live GPS, but the coastal data looks clear and sunny for development!";
-                if (lowText.includes("shift")) response = "Shift complete! We are now fully optimized for the Web environment.";
-
-                chatHistory.value.push({ role: 'bot', content: response });
-                isThinking.value = false;
-                scroll();
-            }, 1000);
-        };
-
-        const resetChat = () => {
-            chatHistory.value = [{ role: 'bot', content: "System reset. Memory cleared. What's next?" }];
-        };
-
-        return { input, chatHistory, isThinking, handleSend, resetChat };
+        // Placeholder for Logix.ai API Call
+        // In a real scenario, you would use fetch() to send 'message' to your bot's endpoint
+        const response = await getBotResponse(message);
+        appendMessage(response, 'bot');
     }
-}).mount('#app');
+
+    function appendMessage(text, sender) {
+        const chatWindow = document.getElementById('chat-window');
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('message', sender);
+        msgDiv.innerText = text;
+        chatWindow.appendChild(msgDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    async function getBotResponse(input) {
+        // Simple Logic Simulation
+        // You would replace this with your Logix.ai API integration
+        if (input.toLowerCase().includes("hello")) return "Hi there! I'm ready to answer your questions.";
+        if (input.toLowerCase().includes("help")) return "I can help with coding, math, or general info.";
+        return "That's interesting! Tell me more about that.";
+    }
 </script>
 
 </body>
