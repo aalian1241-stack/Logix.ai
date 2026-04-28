@@ -3,70 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logix Chatbot Interface</title>
+    <title>Logix AI | With Memory</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
-        .chat-gradient { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .chat-bg { background: #0f172a; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.5s; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
     </style>
 </head>
-<body class="chat-gradient text-gray-100 min-h-screen flex items-center justify-center p-4">
+<body class="chat-bg text-slate-200 min-h-screen flex items-center justify-center p-4">
 
-<div id="app" class="w-full max-w-2xl h-[80vh] flex flex-col bg-gray-800 rounded-2xl shadow-2xl border border-gray-700 overflow-hidden">
+<div id="app" class="w-full max-w-3xl h-[85vh] flex flex-col bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 overflow-hidden">
     
-    <header class="p-4 bg-gray-900 border-b border-gray-700 flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-white shadow-lg">L</div>
+    <header class="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/50 backdrop-blur-md">
+        <div class="flex items-center space-x-4">
+            <div class="relative">
+                <div class="w-12 h-12 bg-gradient-to-tr from-blue-600 to-cyan-400 rounded-2xl rotate-3 flex items-center justify-center text-white font-black text-xl shadow-lg">LX</div>
+                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-4 border-slate-900 rounded-full"></div>
+            </div>
             <div>
-                <h1 class="text-lg font-bold leading-tight">Logix AI</h1>
-                <p class="text-xs text-green-400 flex items-center">
-                    <span class="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></span> Online
-                </p>
+                <h1 class="font-bold text-slate-100">Logix Intelligence</h1>
+                <p class="text-xs text-slate-500 font-mono">Memory Module: <span class="text-blue-400">ACTIVE</span></p>
             </div>
         </div>
-        <button @click="clearChat" class="text-xs text-gray-400 hover:text-white transition">Clear Chat</button>
+        <div class="flex space-x-2">
+            <button @click="clearMemory" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 transition" title="Reset Memory">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+            </button>
+        </div>
     </header>
 
-    <main class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar" id="chat-window">
-        <div v-for="(msg, index) in messages" :key="index" 
-             :class="['flex', msg.role === 'user' ? 'justify-end' : 'justify-start']">
+    <main class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar" id="chat-box">
+        <div v-for="(msg, index) in chatHistory" :key="index" 
+             :class="['flex w-full', msg.role === 'user' ? 'justify-end' : 'justify-start']">
             
             <div :class="[
-                'max-w-[80%] px-4 py-2 rounded-2xl text-sm leading-relaxed shadow-sm',
-                msg.role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-gray-700 text-gray-200 rounded-tl-none'
+                'max-w-[75%] px-5 py-3 rounded-2xl text-sm leading-relaxed',
+                msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-none shadow-blue-900/20 shadow-xl' : 'bg-slate-800 text-slate-200 rounded-tl-none border border-slate-700'
             ]">
+                <div class="text-[10px] uppercase tracking-widest mb-1 opacity-50 font-bold">
+                    {{ msg.role === 'user' ? 'You' : 'Logix' }}
+                </div>
                 {{ msg.content }}
             </div>
         </div>
 
-        <div v-if="isTyping" class="flex justify-start">
-            <div class="bg-gray-700 px-4 py-3 rounded-2xl rounded-tl-none flex space-x-1">
-                <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-                <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-.3s]"></div>
-                <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce [animation-delay:-.5s]"></div>
+        <div v-if="isProcessing" class="flex justify-start">
+            <div class="bg-slate-800 px-5 py-4 rounded-2xl rounded-tl-none border border-slate-700 flex space-x-2">
+                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-.15s]"></div>
+                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-.3s]"></div>
             </div>
         </div>
     </main>
 
-    <footer class="p-4 bg-gray-900 border-t border-gray-700">
-        <form @submit.prevent="sendMessage" class="flex space-x-2">
+    <footer class="p-6 bg-slate-900/80 border-t border-slate-800">
+        <form @submit.prevent="handleChat" class="relative group">
             <input 
-                v-model="userInput"
+                v-model="query"
                 type="text" 
-                placeholder="Type your logic query..." 
-                class="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-4 py-2 focus:outline-none focus:border-blue-500 transition text-sm"
-                :disabled="isTyping"
+                placeholder="Ask me anything..." 
+                class="w-full bg-slate-950 border border-slate-700 rounded-2xl pl-6 pr-16 py-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-slate-100 placeholder-slate-500"
+                :disabled="isProcessing"
             >
             <button 
                 type="submit"
-                :disabled="isTyping || !userInput.trim()"
-                class="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed px-5 py-2 rounded-xl transition font-medium text-sm"
+                class="absolute right-3 top-1/2 -translate-y-1/2 bg-blue-600 p-2.5 rounded-xl text-white hover:bg-blue-500 active:scale-95 transition-all disabled:opacity-30"
+                :disabled="!query.trim() || isProcessing"
             >
-                Send
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+                </svg>
             </button>
         </form>
+        <p class="text-[10px] text-center mt-3 text-slate-600 font-mono uppercase tracking-tighter">System Version 3.1.0-Flash</p>
     </footer>
 </div>
 
@@ -75,52 +90,74 @@
 
     createApp({
         setup() {
-            const userInput = ref('');
-            const isTyping = ref(false);
-            const messages = ref([
-                { role: 'bot', content: 'Hello! I am Logix. How can I assist you with your logic or code today?' }
+            const query = ref('');
+            const isProcessing = ref(false);
+            const userName = ref(''); // Memory piece 1
+            
+            // This array keeps the WHOLE conversation in mind
+            const chatHistory = ref([
+                { role: 'bot', content: "System initialized. I am Logix. What is your name?" }
             ]);
 
-            const scrollToBottom = async () => {
+            const scrollToEnd = async () => {
                 await nextTick();
-                const container = document.getElementById('chat-window');
-                container.scrollTop = container.scrollHeight;
+                const el = document.getElementById('chat-box');
+                el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
             };
 
-            const sendMessage = async () => {
-                const text = userInput.value.trim();
-                if (!text) return;
+            const handleChat = async () => {
+                const userText = query.value.trim();
+                if (!userText) return;
 
-                // Add User Message
-                messages.value.push({ role: 'user', content: text });
-                userInput.value = '';
-                await scrollToBottom();
+                // 1. Add user message to memory
+                chatHistory.value.push({ role: 'user', content: userText });
+                query.value = '';
+                await scrollToEnd();
 
-                // Trigger Bot Response
-                isTyping.value = true;
-                
-                // Simulate network/logic delay
+                // 2. Start "Thinking"
+                isProcessing.ref = true;
+                isProcessing.value = true;
+
                 setTimeout(() => {
-                    const response = getBotResponse(text);
-                    messages.value.push({ role: 'bot', content: response });
-                    isTyping.value = false;
-                    scrollToBottom();
-                }, 1200);
+                    const response = generateResponse(userText);
+                    chatHistory.value.push({ role: 'bot', content: response });
+                    isProcessing.value = false;
+                    scrollToEnd();
+                }, 1000);
             };
 
-            const getBotResponse = (input) => {
-                const lowerInput = input.toLowerCase();
-                if (lowerInput.includes('hello') || lowerInput.includes('hi')) return "Greetings! Ready to process some logic.";
-                if (lowerInput.includes('time')) return "The current system time is " + new Date().toLocaleTimeString();
-                if (lowerInput.includes('help')) return "I can help with code snippets, logic gates, or troubleshooting.";
-                return "Interesting request. As Logix, I'm processing: '" + input + "'. How should we proceed?";
+            // LOGIX MEMORY ENGINE
+            const generateResponse = (input) => {
+                const cleanInput = input.toLowerCase();
+                
+                // Logic to remember the user's name
+                if (chatHistory.value.length <= 3 && !userName.value) {
+                    userName.value = input;
+                    return `Nice to meet you, ${userName.value}! I have saved your name to my memory. What shall we build today?`;
+                }
+
+                // Logic to reference past context
+                if (cleanInput.includes("who am i") || cleanInput.includes("my name")) {
+                    return userName.value ? `You told me your name is ${userName.value}.` : "I don't know your name yet!";
+                }
+
+                if (cleanInput.includes("remember")) {
+                    return "My memory modules are active. I remember everything we've discussed in this session.";
+                }
+
+                if (cleanInput.includes("clear") || cleanInput.includes("reset")) {
+                    return "If you want to clear my mind, click the trash icon at the top!";
+                }
+
+                return "Understood. I am processing that within our current conversation context. Should I apply this to our 'Logix' project?";
             };
 
-            const clearChat = () => {
-                messages.value = [{ role: 'bot', content: 'History cleared. System reset.' }];
+            const clearMemory = () => {
+                userName.value = '';
+                chatHistory.value = [{ role: 'bot', content: 'Memory wiped. I am ready for a fresh start.' }];
             };
 
-            return { userInput, messages, isTyping, sendMessage, clearChat };
+            return { query, chatHistory, isProcessing, handleChat, clearMemory };
         }
     }).mount('#app');
 </script>
