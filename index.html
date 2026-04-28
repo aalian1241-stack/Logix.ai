@@ -3,135 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logix AI | Coastal Intelligence</title>
+    <title>Logix Code Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #020617; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); }
-        .message-in { animation: slideUp 0.3s ease-out forwards; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        body { background-color: #1e1e1e; color: #d4d4d4; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; height: 100vh; overflow: hidden; }
+        .activity-bar { width: 50px; background-color: #333333; }
+        .sidebar { width: 250px; background-color: #252526; }
+        .editor { background-color: #1e1e1e; }
+        .status-bar { height: 25px; background-color: #007acc; }
+        .line-numbers { color: #858585; text-align: right; padding-right: 15px; user-select: none; }
+        .cursor-blink { border-left: 2px solid #fff; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { border-color: transparent; } }
+        .terminal { background-color: #1e1e1e; border-top: 1px solid #333; height: 200px; }
+        input { background: transparent; border: none; outline: none; color: #9cdcfe; width: 100%; font-family: monospace; }
     </style>
 </head>
-<body class="text-slate-200 flex items-center justify-center min-h-screen p-4">
+<body>
 
-<div id="app" class="w-full max-w-4xl h-[90vh] flex flex-col glass border border-slate-800 rounded-3xl shadow-2xl overflow-hidden">
+<div id="app" class="flex flex-col h-screen">
     
-    <nav class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/40">
+    <div class="flex flex-1 overflow-hidden">
+        
+        <div class="activity-bar flex flex-col items-center py-4 space-y-6 text-gray-400">
+            <i class="fas fa-copy text-xl text-white"></i>
+            <i class="fas fa-search text-xl hover:text-white cursor-pointer"></i>
+            <i class="fas fa-code-branch text-xl hover:text-white cursor-pointer"></i>
+            <i class="fas fa-th-large text-xl hover:text-white cursor-pointer"></i>
+            <i class="fas fa-robot text-xl text-blue-400"></i>
+        </div>
+
+        <div class="sidebar border-r border-black p-4">
+            <h2 class="text-xs font-bold uppercase mb-4 tracking-widest text-gray-500">Explorer</h2>
+            <div class="space-y-2 text-sm">
+                <div class="flex items-center text-blue-400"><i class="fas fa-chevron-down mr-2 text-[10px]"></i> LOGIX-PROJECT</div>
+                <div class="ml-4 flex items-center hover:bg-gray-700 p-1 rounded cursor-pointer">
+                    <i class="fab fa-html5 mr-2 text-orange-500"></i> index.html
+                </div>
+                <div class="ml-4 flex items-center hover:bg-gray-700 p-1 rounded cursor-pointer">
+                    <i class="fab fa-js mr-2 text-yellow-400"></i> logix-core.ai
+                </div>
+            </div>
+        </div>
+
+        <div class="editor flex-1 flex flex-col">
+            <div class="flex bg-[#2d2d2d] text-xs">
+                <div class="bg-[#1e1e1e] px-4 py-2 border-t-2 border-blue-500 flex items-center">
+                    <i class="fab fa-js mr-2 text-yellow-400"></i> logix-core.ai <i class="fas fa-times ml-3 opacity-50"></i>
+                </div>
+            </div>
+
+            <div class="flex-1 p-4 font-mono text-sm overflow-y-auto flex">
+                <div class="line-numbers text-right">
+                    <div v-for="n in 20" :key="n">{{ n }}</div>
+                </div>
+                <div class="flex-1 text-blue-300">
+                    <div v-for="(line, i) in chatLog" :key="i">
+                        <span class="text-gray-500">// Logix: {{ line.role }}</span><br>
+                        <span :class="line.role === 'ai' ? 'text-green-400' : 'text-blue-200'">{{ line.text }}</span>
+                    </div>
+                    <div class="mt-2 flex">
+                        <span class="text-yellow-400 mr-2">> </span>
+                        <input v-model="userInput" @keyup.enter="submitQuery" placeholder="Type command..." autofocus>
+                        <span class="cursor-blink"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="terminal p-4 font-mono text-xs overflow-y-auto">
+                <div class="flex space-x-4 mb-2 border-b border-gray-700 pb-1">
+                    <span class="border-b border-white pb-1">TERMINAL</span>
+                    <span class="text-gray-500">OUTPUT</span>
+                    <span class="text-gray-500">DEBUG CONSOLE</span>
+                </div>
+                <div class="text-green-500">[LOGIX] Coastal Logic Engine initialized...</div>
+                <div class="text-gray-400">[SYS] {{ statusMessage }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar flex justify-between items-center px-3 text-[11px] text-white">
         <div class="flex items-center space-x-4">
-            <div class="w-3 h-3 bg-cyan-500 rounded-full animate-pulse"></div>
-            <h1 class="text-xl font-black tracking-widest text-cyan-500">LOGIX COASTAL v4</h1>
+            <div class="hover:bg-white/20 px-1 cursor-pointer"><i class="fas fa-code-branch mr-1"></i> main*</div>
+            <div class="hover:bg-white/20 px-1 cursor-pointer"><i class="fas fa-sync mr-1"></i> Refresh</div>
         </div>
-        <div class="text-xs font-mono text-slate-500 uppercase tracking-widest">Memory Nodes: {{ chatHistory.length }}</div>
-    </nav>
-
-    <main class="flex-1 overflow-y-auto p-6 space-y-6" id="chat-container">
-        <div v-for="(msg, i) in chatHistory" :key="i" 
-             :class="['flex', msg.role === 'user' ? 'justify-end' : 'justify-start']">
-            
-            <div :class="[
-                'max-w-[85%] p-4 rounded-2xl message-in shadow-lg text-sm transition-all',
-                msg.role === 'user' ? 'bg-cyan-600 text-white rounded-br-none' : 'bg-slate-800 border border-slate-700 rounded-tl-none text-slate-200'
-            ]">
-                <p class="whitespace-pre-line">{{ msg.content }}</p>
-            </div>
+        <div class="flex items-center space-x-4">
+            <span>UTF-8</span>
+            <span>HTML/Logix</span>
+            <i class="fas fa-bell"></i>
         </div>
-
-        <div v-if="loading" class="flex justify-start">
-            <div class="bg-slate-800 p-4 rounded-2xl rounded-tl-none border border-slate-700 flex space-x-2">
-                <div class="w-2 h-2 bg-cyan-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                <div class="w-2 h-2 bg-cyan-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                <div class="w-2 h-2 bg-cyan-500 rounded-full animate-bounce"></div>
-            </div>
-        </div>
-    </main>
-
-    <footer class="p-6 bg-slate-900/60 border-t border-slate-800">
-        <div class="relative max-w-3xl mx-auto">
-            <input 
-                v-model="userInput" 
-                @keyup.enter="processInput"
-                type="text" 
-                placeholder="Ask about logic, tech, or weather..." 
-                class="w-full bg-slate-950 border border-slate-700 rounded-2xl py-4 pl-6 pr-20 focus:outline-none focus:border-cyan-500 transition-all text-slate-200"
-            >
-            <button 
-                @click="processInput"
-                class="absolute right-2 top-2 bottom-2 px-6 bg-cyan-600 hover:bg-cyan-500 rounded-xl font-bold text-xs uppercase tracking-widest transition-all active:scale-95"
-            >
-                Send
-            </button>
-        </div>
-    </footer>
+    </div>
 </div>
 
 <script>
-const { createApp, ref, nextTick } = Vue;
+    const { createApp, ref } = Vue;
 
-createApp({
-    setup() {
-        const userInput = ref('');
-        const loading = ref(false);
-        const chatHistory = ref([
-            { role: 'bot', content: "Logix Coastal Online. My database is loaded with answers. Ask me anything." }
-        ]);
+    createApp({
+        setup() {
+            const userInput = ref('');
+            const statusMessage = ref('Waiting for input...');
+            const chatLog = ref([
+                { role: 'ai', text: 'System ready. Enter "help" to see coastal commands.' }
+            ]);
 
-        // "COASTAL" KNOWLEDGE BASE (The Brain)
-        const knowledgeBase = {
-            greetings: ["Hello! How can I help?", "Greetings, user.", "System online. Ready for input."],
-            logic: {
-                gates: "Logic gates are the building blocks of digital circuits: AND, OR, NOT, NAND, XOR.",
-                boolean: "Boolean logic uses True/False or 1/0 values to determine outcomes."
-            },
-            tech: {
-                ai: "Artificial Intelligence is the simulation of human intelligence by machines.",
-                web: "Modern web apps are built using HTML, CSS, and JavaScript with reactive frameworks.",
-                database: "Databases like SQL and NoSQL store information in tables or documents."
-            },
-            creative: {
-                coding: "Coding is like poetry; every character matters and has a specific purpose.",
-                future: "The future of technology is focused on automation and seamless AI integration."
-            }
-        };
+            // HUGE "COASTAL" DATA SET
+            const database = {
+                "help": "Available: build, logic, weather, clear, system-info, about.",
+                "build": "Initializing Web App Builder... HTML Template created in memory.",
+                "logic": "Coastal Logic: (Input A XOR Input B) results in High signal if states differ.",
+                "weather": "Coastal Data: 22°C, Sunny, Wind 5km/h Northwest.",
+                "system-info": "Version: 3.5.0-Flash | Memory: Stable | CPU: Optimized.",
+                "about": "I am Logix, a VS Code inspired AI designed for local web app simulation."
+            };
 
-        const scroll = async () => {
-            await nextTick();
-            const el = document.getElementById('chat-container');
-            el.scrollTop = el.scrollHeight;
-        };
+            const submitQuery = () => {
+                const cmd = userInput.value.trim().toLowerCase();
+                if (!cmd) return;
 
-        const processInput = () => {
-            const text = userInput.value.trim().toLowerCase();
-            if (!text) return;
+                // Add User message
+                chatLog.value.push({ role: 'user', text: userInput.value });
+                statusMessage.value = `Processing "${cmd}"...`;
 
-            chatHistory.value.push({ role: 'user', content: userInput.value });
-            userInput.value = '';
-            loading.value = true;
-            scroll();
+                // Logic Processing
+                setTimeout(() => {
+                    let response = database[cmd] || `Error: Command "${cmd}" not found in Coastal Database.`;
+                    
+                    if(cmd.includes("clear")) {
+                        chatLog.value = [{ role: 'ai', text: 'Console cleared.' }];
+                    } else {
+                        chatLog.value.push({ role: 'ai', text: response });
+                    }
+                    
+                    statusMessage.value = "Ready";
+                    userInput.value = '';
+                }, 400);
+            };
 
-            // Simulate "Coastal" thinking (searching many answers)
-            setTimeout(() => {
-                let reply = "I'm not sure about that specific query, but I can talk about logic, tech, or basics.";
-
-                // Logic Search
-                if (text.includes("hello") || text.includes("hi")) reply = knowledgeBase.greetings[Math.floor(Math.random() * 3)];
-                else if (text.includes("logic")) reply = knowledgeBase.logic.gates;
-                else if (text.includes("boolean")) reply = knowledgeBase.logic.boolean;
-                else if (text.includes("tech") || text.includes("ai")) reply = knowledgeBase.tech.ai;
-                else if (text.includes("web") || text.includes("build")) reply = knowledgeBase.tech.web;
-                else if (text.includes("code")) reply = knowledgeBase.creative.coding;
-                else if (text.includes("future")) reply = knowledgeBase.creative.future;
-                else if (text.includes("name")) reply = "You can call me Logix, your coastal AI companion.";
-
-                chatHistory.value.push({ role: 'bot', content: reply });
-                loading.value = false;
-                scroll();
-            }, 800);
-        };
-
-        return { userInput, chatHistory, loading, processInput };
-    }
-}).mount('#app');
+            return { userInput, chatLog, statusMessage, submitQuery };
+        }
+    }).mount('#app');
 </script>
 
 </body>
