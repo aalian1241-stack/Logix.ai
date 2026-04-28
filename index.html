@@ -3,233 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logix.ai Pro | Multi-Functional Bot</title>
+    <title>Logix.ai | Self-Learning Bot</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    
     <style>
-        :root {
-            --primary: #6366f1;
-            --secondary: #4f46e5;
-            --bot-bg: #ffffff;
-            --user-bg: #6366f1;
-            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        }
-
-        * { box-sizing: border-box; }
-
-        body {
-            background: var(--bg-gradient);
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0;
-            font-family: 'Inter', sans-serif;
-        }
-
-        /* Strong Design Container */
-        #chat-container {
-            width: 420px;
-            height: 650px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            border-radius: 28px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        #header {
-            background: var(--primary);
-            color: white;
-            padding: 25px;
-            text-align: center;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            font-size: 1.2rem;
-            text-transform: uppercase;
-        }
-
-        #chat-window {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        /* Message Bubbles */
-        .msg {
-            padding: 12px 18px;
-            border-radius: 20px;
-            font-size: 14.5px;
-            line-height: 1.6;
-            max-width: 80%;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .user-msg {
-            align-self: flex-end;
-            background: var(--user-bg);
-            color: white;
-            border-bottom-right-radius: 4px;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-        }
-
-        .bot-msg {
-            align-self: flex-start;
-            background: var(--bot-bg);
-            color: #1e293b;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-        /* Input Area */
-        #input-area {
-            padding: 25px;
-            display: flex;
-            gap: 12px;
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        input {
-            flex: 1;
-            padding: 14px 22px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-radius: 30px;
-            outline: none;
-            transition: all 0.3s;
-        }
-
-        input:focus {
-            border-color: var(--primary);
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        button:hover {
-            transform: scale(1.1);
-            background: var(--secondary);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Custom Scrollbar */
-        #chat-window::-webkit-scrollbar { width: 5px; }
-        #chat-window::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        :root { --primary: #6366f1; --accent: #10b981; --bg: #0f172a; --glass: rgba(255, 255, 255, 0.05); }
+        body { background: var(--bg); height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; font-family: 'Inter', sans-serif; color: white; }
+        #chat-container { width: 450px; height: 700px; background: var(--glass); backdrop-filter: blur(20px); border-radius: 30px; display: flex; flex-direction: column; border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+        #header { background: var(--primary); padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        #chat-window { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .msg { padding: 12px 18px; border-radius: 18px; max-width: 80%; font-size: 14px; line-height: 1.5; animation: fadeIn 0.3s ease; }
+        .user-msg { align-self: flex-end; background: var(--primary); color: white; border-bottom-right-radius: 4px; }
+        .bot-msg { align-self: flex-start; background: white; color: #1e293b; border-bottom-left-radius: 4px; }
+        .system-msg { align-self: center; background: rgba(255,255,255,0.1); color: #aaa; font-size: 12px; border-radius: 10px; padding: 5px 15px; }
+        #input-area { padding: 20px; display: flex; gap: 10px; background: rgba(0,0,0,0.2); }
+        input { flex: 1; padding: 14px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; outline: none; }
+        button { background: var(--accent); border: none; width: 45px; height: 45px; border-radius: 50%; color: white; cursor: pointer; transition: 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div id="chat-container">
-    <div id="header">Logix.ai Intelligence</div>
+    <div id="header">
+        <h3>Logix Trainer</h3>
+        <button onclick="location.reload()" style="background:none; font-size:12px; width:auto; color:white;">Reset Memory</button>
+    </div>
     <div id="chat-window"></div>
     <div id="input-area">
-        <input type="text" id="user-input" placeholder="Type your question..." autocomplete="off">
-        <button id="send-btn">➔</button>
+        <input type="text" id="user-input" placeholder="Type something..." autocomplete="off">
+        <button onclick="processChat()">➔</button>
     </div>
 </div>
 
 <script>
-    const chatWindow = document.getElementById('chat-window');
-    const userInput = document.getElementById('user-input');
-    const sendBtn = document.getElementById('send-btn');
+    // 1. Memory and Training State
+    let learnedMemory = {}; // Stores new Q&A
+    let isLearning = false; // Flag to check if we are in training mode
+    let lastUnknownQuestion = ""; // Holds the question we are training
 
-    // 1. Voice Introduction Logic
     function speak(text) {
-        const synth = window.speechSynthesis;
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.rate = 1.0;
-        utterance.pitch = 1.0;
-        // Optional: Find a specific voice
-        const voices = synth.getVoices();
-        utterance.voice = voices.find(v => v.lang.includes('en')) || voices[0];
-        synth.speak(utterance);
+        window.speechSynthesis.speak(utterance);
     }
 
-    // Initial Greeting
-    window.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
-            const intro = "Welcome to Logix AI. I am initialized and ready for your questions.";
-            addMessage(intro, 'bot-msg');
-            // Browser policy: Voice often needs a click to start, so we call it on the first bot reply
-        }, 800);
-    });
-
-    // 2. Main Chat Processing
-    function processChat() {
-        const text = userInput.value.trim();
-        if (!text) return;
-
-        addMessage(text, 'user-msg');
-        userInput.value = "";
-
-        // Artificial "thinking" delay
-        setTimeout(() => {
-            const response = getTrainingLogic(text);
-            addMessage(response, 'bot-msg');
-            speak(response); // Bot speaks the response
-        }, 700);
-    }
-
-    // 3. The Q&A Training Logic (Knowledge Base)
-    function getTrainingLogic(input) {
-        const msg = input.toLowerCase();
-
-        if (msg.includes("hello") || msg.includes("hi")) {
-            return "Greetings! I am your multi-functional assistant. How can I help you today?";
-        }
-        if (msg.includes("who are you")) {
-            return "I am a Logix.ai powered bot, designed to handle multiple functions in a single interface.";
-        }
-        if (msg.includes("what can you do")) {
-            return "I can answer questions, provide real-time feedback, and speak my responses out loud!";
-        }
-        if (msg.includes("time")) {
-            return "The current time is " + new Date().toLocaleTimeString() + ".";
-        }
-        if (msg.includes("weather")) {
-            return "I don't have a barometer, but the forecast for your code looks bright!";
-        }
-        
-        // Default Fallback
-        return "That is an interesting query. I am still being trained on that specific topic. Try asking about my functions!";
-    }
-
-    // Helper: Add Message to UI
     function addMessage(text, className) {
+        const win = document.getElementById('chat-window');
         const div = document.createElement('div');
         div.className = `msg ${className}`;
         div.innerText = text;
-        chatWindow.appendChild(div);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
+        win.appendChild(div);
+        win.scrollTop = win.scrollHeight;
     }
 
-    // Event Listeners
-    sendBtn.addEventListener('click', processChat);
-    userInput.addEventListener('keypress', (e) => {
+    function processChat() {
+        const inputField = document.getElementById('user-input');
+        const text = inputField.value.trim();
+        if (!text) return;
+
+        addMessage(text, 'user-msg');
+        inputField.value = '';
+
+        setTimeout(() => {
+            handleLogic(text);
+        }, 600);
+    }
+
+    function handleLogic(userInput) {
+        // IF BOT IS WAITING FOR A TEACHER'S ANSWER
+        if (isLearning) {
+            validateAndLearn(userInput);
+            return;
+        }
+
+        const query = userInput.toLowerCase();
+
+        // Check Hardcoded Logic
+        if (query.includes("hi") || query.includes("hello")) {
+            respond("Hello! I am ready to learn or chat.");
+            return;
+        }
+
+        // Check Learned Memory
+        if (learnedMemory[query]) {
+            respond(learnedMemory[query]);
+            return;
+        }
+
+        // UNKNOWN QUESTION - Start Training Feature
+        lastUnknownQuestion = query;
+        isLearning = true;
+        respond("I don't know the answer to that yet. Can you teach me? Please type the correct answer below.");
+        addMessage("SYSTEM: Learning Mode Active", "system-msg");
+    }
+
+    // THE FILTER & ACCEPTANCE LOGIC
+    function validateAndLearn(answer) {
+        // Filter Check: Is the answer too short or just nonsense?
+        if (answer.length < 3) {
+            respond("That answer is too short to be accepted. Please give me a better explanation.");
+            return;
+        }
+
+        // Accept the answer
+        learnedMemory[lastUnknownQuestion] = answer;
+        isLearning = false;
+        respond("Thank you! I have accepted that answer and saved it to my memory. Try asking the question again!");
+        addMessage("SYSTEM: Knowledge Updated", "system-msg");
+        console.log("Current Memory:", learnedMemory);
+    }
+
+    function respond(text) {
+        addMessage(text, 'bot-msg');
+        speak(text);
+    }
+
+    document.getElementById('user-input').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') processChat();
     });
+
+    window.onload = () => addMessage("Logix AI Online. Ask me anything to start training!", 'bot-msg');
 </script>
 
 </body>
