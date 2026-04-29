@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ExpensePro | Final Intelligence Suite</title>
+    <title>ExpensePro | Enterprise Suite</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -19,8 +18,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-        /* Sidebar Navigation */
-        .sidebar { width: 280px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 30px 20px; display: flex; flex-direction: column; }
+        /* Sidebar */
+        .sidebar { width: 260px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 30px 20px; display: flex; flex-direction: column; }
         .logo { font-size: 22px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 12px; margin-bottom: 40px; }
         .nav-link { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 12px; color: var(--text-sub); cursor: pointer; border: none; background: none; width: 100%; font-size: 14px; font-weight: 600; transition: 0.3s; margin-bottom: 5px; text-align: left;}
         .nav-link.active { background: var(--primary); color: white; }
@@ -28,125 +27,151 @@
 
         /* Content Area */
         .content-area { flex: 1; padding: 40px; overflow-y: auto; }
-        .view { display: none; max-width: 1000px; margin: 0 auto; animation: fadeIn 0.3s ease; }
+        .view { display: none; max-width: 1100px; margin: 0 auto; animation: fadeIn 0.3s ease; }
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Component Cards */
         .card { background: white; padding: 24px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .grid-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 25px; }
-        .stat-label { font-size: 12px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
-        .stat-value { font-size: 26px; font-weight: 700; margin-top: 5px; }
+        .grid-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: white; padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
+        .stat-label { font-size: 11px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; margin-bottom: 8px; }
+        .stat-value { font-size: 20px; font-weight: 800; }
 
-        /* Inputs & Buttons */
+        /* Smart Category Meters */
+        .meter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .meter-card { background: #fdfdfd; border: 1px solid var(--border); padding: 15px; border-radius: 12px; }
+        .p-bar { height: 8px; background: #eee; border-radius: 10px; margin: 10px 0; overflow: hidden; }
+        .p-fill { height: 100%; transition: 0.5s; }
+
+        /* Inputs */
         .input-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; margin-top: 15px; }
         input, select { padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; outline: none; width: 100%; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-        .btn-add { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-main { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-main:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        /* Tables & Badges */
+        /* AI Insight Bar */
+        .ai-bar { background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 12px; margin-bottom: 25px; color: #1e40af; font-size: 14px; font-weight: 500; }
+
+        /* Tables */
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 15px; font-size: 12px; color: var(--text-sub); border-bottom: 1px solid var(--border); }
+        th { text-align: left; padding: 15px; font-size: 12px; color: var(--text-sub); border-bottom: 1px solid var(--border); text-transform: uppercase; }
         td { padding: 15px; border-bottom: 1px solid var(--border); font-size: 14px; }
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
         .bg-food { background: #fee2e2; color: #ef4444; }
         .bg-transport { background: #dcfce7; color: #10b981; }
         .bg-bills { background: #fef3c7; color: #b45309; }
-        .action-icons { display: flex; gap: 15px; color: var(--text-sub); cursor: pointer; }
+        .bg-other { background: #f1f5f9; color: #475569; }
+        .action-icons { display: flex; gap: 12px; cursor: pointer; color: var(--text-sub); }
         .action-icons i:hover { color: var(--primary); }
-
-        /* Progress Bars */
-        .progress-track { background: #e2e8f0; height: 12px; border-radius: 10px; margin: 20px 0; overflow: hidden; }
-        .progress-fill { background: var(--success); height: 100%; width: 0%; transition: 1s ease-in-out; }
-
-        /* AI Suggestions Box */
-        .ai-box { background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 12px; margin-bottom: 25px; }
     </style>
 </head>
 <body>
 
-    <aside class="sidebar">
-        <div class="logo"><i class="fa-solid fa-chart-line"></i> ExpensePro</div>
+    <nav class="sidebar">
+        <div class="logo"><i class="fa-solid fa-gem"></i> ExpensePro</div>
         <button class="nav-link active" onclick="switchTab('dashboard', this)"><i class="fa-solid fa-house"></i> Dashboard</button>
-        <button class="nav-link" onclick="switchTab('savings', this)"><i class="fa-solid fa-piggy-bank"></i> Savings</button>
+        <button class="nav-link" onclick="switchTab('analytics', this)"><i class="fa-solid fa-chart-pie"></i> Analytics</button>
+        <button class="nav-link" onclick="switchTab('savings', this)"><i class="fa-solid fa-piggy-bank"></i> Savings Vault</button>
         <button class="nav-link" onclick="switchTab('settings', this)"><i class="fa-solid fa-sliders"></i> Settings</button>
-        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px;">
-            <button class="nav-link" onclick="exportPDF()"><i class="fa-solid fa-file-pdf"></i> Export PDF Report</button>
-            <button class="nav-link" onclick="exportCSV()"><i class="fa-solid fa-file-csv"></i> Download CSV</button>
+        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px;">
+            <button class="nav-link" onclick="exportPDF()"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+            <button class="nav-link" onclick="exportCSV()"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
         </div>
-    </aside>
+    </nav>
 
     <main class="content-area">
-        
+
         <section id="dashboard" class="view active">
             <header style="margin-bottom: 25px;">
-                <h1>Hi, <span id="user-display">User</span></h1>
-                <p id="today-date" style="color: var(--text-sub);"></p>
+                <h1>Welcome, <span id="display-name">User</span></h1>
+                <p id="display-date" style="color: var(--text-sub);"></p>
             </header>
 
-            <div class="ai-box">
-                <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary)"></i>
-                <span id="ai-suggestion" style="font-size: 14px; font-weight: 500; color: #1e40af;">Add your first expense to see smart insights.</span>
+            <div class="ai-bar">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span id="ai-insight">Ready to track your financial health today.</span>
             </div>
 
             <div class="grid-stats">
-                <div class="card"><div class="stat-label">Total Spent</div><div class="stat-value" id="total-spent-val">Rs. 0</div></div>
-                <div class="card"><div class="stat-label">Monthly Budget</div><div class="stat-value" id="budget-val">Rs. 0</div></div>
-                <div class="card"><div class="stat-label">Savings Goal</div><div class="stat-value" id="savings-val">Rs. 0</div></div>
+                <div class="stat-card"><div class="stat-label">Spent Today</div><div class="stat-value" id="val-day">Rs. 0</div></div>
+                <div class="stat-card"><div class="stat-label">This Month</div><div class="stat-value" id="val-month">Rs. 0</div></div>
+                <div class="stat-card"><div class="stat-label">Budget Left</div><div class="stat-value" id="val-budget" style="color:var(--success)">Rs. 0</div></div>
+                <div class="stat-card"><div class="stat-label">Savings Vault</div><div class="stat-value" id="val-savings">Rs. 0</div></div>
             </div>
 
             <div class="card">
-                <h3 id="form-title">Add New Transaction</h3>
+                <h3 id="form-title">Add Transaction</h3>
                 <div class="input-row">
                     <input type="hidden" id="edit-id">
-                    <input type="text" id="exp-desc" placeholder="Expense description">
-                    <select id="exp-cat">
+                    <input type="text" id="in-desc" placeholder="What did you buy?">
+                    <select id="in-cat">
                         <option value="Food">Food</option>
                         <option value="Transport">Transport</option>
                         <option value="Bills">Bills</option>
                         <option value="Other">Other</option>
                     </select>
-                    <input type="number" id="exp-amt" placeholder="Amount">
-                    <button class="btn-add" id="submit-btn" onclick="saveTransaction()">Add Entry</button>
+                    <input type="number" id="in-amt" placeholder="Amount">
+                    <button class="btn-main" id="submit-btn" onclick="handleTransaction()">Save Entry</button>
                 </div>
             </div>
 
             <div class="card">
-                <table>
-                    <thead><tr><th>Date</th><th>Item</th><th>Category</th><th>Amount</th><th>Action</th></tr></thead>
-                    <tbody id="exp-body"></tbody>
+                <h3>Recent History</h3>
+                <table style="margin-top: 15px;">
+                    <thead><tr><th>Date</th><th>Item</th><th>Category</th><th>Amount</th><th>Actions</th></tr></thead>
+                    <tbody id="table-body"></tbody>
                 </table>
             </div>
         </section>
 
-        <section id="savings" class="view">
-            <h1>Savings Goal Tracker</h1>
-            <p style="color: var(--text-sub); margin-bottom: 25px;">Track your journey towards financial freedom.</p>
-            <div class="card">
-                <h2 id="goal-title">My Financial Goal</h2>
-                <div class="stat-value" style="margin: 15px 0;">Rs. <span id="save-current">0</span> / <span id="save-target">0</span></div>
-                <div class="progress-track"><div class="progress-fill" id="save-progress"></div></div>
-                <p id="save-percent-text" style="font-weight: 700; color: var(--success);"></p>
+        <section id="analytics" class="view">
+            <h1>Spending Analytics</h1>
+            <div class="grid-stats" style="margin-top:20px;">
+                <div class="stat-card"><div class="stat-label">Year Total</div><div class="stat-value" id="an-year">Rs. 0</div></div>
+                <div class="stat-card"><div class="stat-label">Overall Total</div><div class="stat-value" id="an-overall">Rs. 0</div></div>
             </div>
-            <div class="card" style="max-width: 450px;">
-                <h3>Deposit into Goal</h3>
+            <div class="card">
+                <h3>Category Spending Limits</h3>
+                <div class="meter-grid" id="cat-meters"></div>
+            </div>
+        </section>
+
+        <section id="savings" class="view">
+            <h1>Savings Vault</h1>
+            <div class="card" style="margin-top:20px;">
+                <h2 id="vault-goal-name">My Goal</h2>
+                <div class="stat-value" style="margin: 15px 0; font-size: 32px;">Rs. <span id="v-curr">0</span> / <span id="v-tar">0</span></div>
+                <div class="p-bar" style="height: 16px;"><div class="p-fill" id="v-fill" style="background: var(--success);"></div></div>
+                <p id="v-pct" style="font-weight: 700; color: var(--success);"></p>
+            </div>
+            <div class="card" style="max-width: 400px;">
+                <h3>Add Deposit</h3>
                 <div class="input-row" style="grid-template-columns: 1fr auto;">
-                    <input type="number" id="save-deposit" placeholder="Amount to save">
-                    <button class="btn-add" style="background: var(--success);" onclick="addSavingDeposit()">Deposit</button>
+                    <input type="number" id="v-deposit" placeholder="Amount">
+                    <button class="btn-main" style="background: var(--success);" onclick="addVaultSaving()">Deposit</button>
                 </div>
-                <p style="font-size: 12px; color: var(--text-sub); margin-top: 15px;">Note: Deposits are added to your existing savings balance.</p>
             </div>
         </section>
 
         <section id="settings" class="view">
-            <h1>Settings & Profile</h1>
-            <div class="card" style="max-width: 500px; margin-top: 20px;">
-                <div style="display:flex; flex-direction:column; gap: 15px;">
-                    <div><label class="stat-label">Full Name</label><input type="text" id="set-name"></div>
-                    <div><label class="stat-label">Monthly Budget Limit (Rs.)</label><input type="number" id="set-budget"></div>
-                    <div><label class="stat-label">Savings Goal Name</label><input type="text" id="set-goal"></div>
-                    <div><label class="stat-label">Target Amount (Rs.)</label><input type="number" id="set-target"></div>
-                    <button class="btn-add" style="margin-top: 10px;" onclick="updateAllSettings()">Save Settings</button>
+            <h1>App Settings</h1>
+            <div class="card" style="margin-top: 20px; max-width: 600px;">
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div><label class="stat-label">User Name</label><input type="text" id="s-name"></div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div><label class="stat-label">Monthly Budget Limit</label><input type="number" id="s-budget"></div>
+                        <div><label class="stat-label">Savings Target</label><input type="number" id="s-target"></div>
+                    </div>
+                    <div><label class="stat-label">Savings Goal Name</label><input type="text" id="s-goal"></div>
+                    <h4 style="margin-top:10px; font-size: 12px; color: var(--primary);">CATEGORY BUDGET LIMITS</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div><label class="stat-label">Food Limit</label><input type="number" id="l-food"></div>
+                        <div><label class="stat-label">Transport Limit</label><input type="number" id="l-transport"></div>
+                        <div><label class="stat-label">Bills Limit</label><input type="number" id="l-bills"></div>
+                        <div><label class="stat-label">Other Limit</label><input type="number" id="l-other"></div>
+                    </div>
+                    <button class="btn-main" onclick="saveAllSettings()">Update Enterprise Settings</button>
                 </div>
             </div>
         </section>
@@ -154,162 +179,170 @@
     </main>
 
     <script>
-        // --- DATA STATE ---
-        let state = JSON.parse(localStorage.getItem('EXPENSE_PRO_ULTRA')) || {
+        // --- 1. CORE DATA ---
+        let db = JSON.parse(localStorage.getItem('EXP_PRO_ENT')) || {
             expenses: [],
-            savings: 0,
-            config: { name: 'User', budget: 50000, goal: 'General Savings', target: 200000 }
+            vault: 0,
+            settings: {
+                name: 'User', budget: 50000, goal: 'General', target: 100000,
+                limits: { Food: 15000, Transport: 10000, Bills: 20000, Other: 5000 }
+            }
         };
 
-        // --- TAB SWITCHER ---
-        function switchTab(viewId, btn) {
+        // --- 2. NAVIGATION ---
+        function switchTab(id, btn) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
+            document.getElementById(id).classList.add('active');
             btn.classList.add('active');
+            refresh();
         }
 
-        // --- TRANSACTIONS (ADD/EDIT/DELETE) ---
-        function saveTransaction() {
+        // --- 3. CRUD ENGINE ---
+        function handleTransaction() {
             const id = document.getElementById('edit-id').value;
-            const desc = document.getElementById('exp-desc').value;
-            const cat = document.getElementById('exp-cat').value;
-            const amt = parseFloat(document.getElementById('exp-amt').value);
+            const desc = document.getElementById('in-desc').value;
+            const cat = document.getElementById('in-cat').value;
+            const amt = parseFloat(document.getElementById('in-amt').value);
 
-            if(!desc || isNaN(amt)) return alert("Please enter description and amount");
+            if(!desc || isNaN(amt)) return alert("Fill all fields correctly!");
 
             if(id) {
-                const idx = state.expenses.findIndex(e => e.id == id);
-                state.expenses[idx] = { ...state.expenses[idx], desc, cat, amt };
+                const idx = db.expenses.findIndex(e => e.id == id);
+                db.expenses[idx] = { ...db.expenses[idx], desc, cat, amt };
                 resetForm();
             } else {
-                state.expenses.unshift({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), desc, cat, amt });
+                db.expenses.unshift({ id: Date.now(), timestamp: new Date(), date: new Date().toLocaleDateString('en-GB'), desc, cat, amt });
             }
             sync();
         }
 
-        function editTransaction(id) {
-            const exp = state.expenses.find(e => e.id == id);
-            document.getElementById('edit-id').value = exp.id;
-            document.getElementById('exp-desc').value = exp.desc;
-            document.getElementById('exp-cat').value = exp.cat;
-            document.getElementById('exp-amt').value = exp.amt;
+        function editItem(id) {
+            const e = db.expenses.find(x => x.id == id);
+            document.getElementById('edit-id').value = e.id;
+            document.getElementById('in-desc').value = e.desc;
+            document.getElementById('in-cat').value = e.cat;
+            document.getElementById('in-amt').value = e.amt;
             document.getElementById('form-title').innerText = "Edit Transaction";
-            document.getElementById('submit-btn').innerText = "Update Entry";
+            document.getElementById('submit-btn').innerText = "Update";
         }
 
-        function deleteTransaction(id) {
-            if(confirm("Permanently delete this entry?")) {
-                state.expenses = state.expenses.filter(e => e.id !== id);
-                sync();
-            }
+        function deleteItem(id) {
+            if(confirm("Delete this?")) { db.expenses = db.expenses.filter(x => x.id !== id); sync(); }
         }
 
         function resetForm() {
             document.getElementById('edit-id').value = '';
-            document.getElementById('exp-desc').value = '';
-            document.getElementById('exp-amt').value = '';
-            document.getElementById('form-title').innerText = "Add New Transaction";
-            document.getElementById('submit-btn').innerText = "Add Entry";
+            document.getElementById('in-desc').value = '';
+            document.getElementById('in-amt').value = '';
+            document.getElementById('form-title').innerText = "Add Transaction";
+            document.getElementById('submit-btn').innerText = "Save Entry";
         }
 
-        // --- SAVINGS & SETTINGS ---
-        function addSavingDeposit() {
-            const amt = parseFloat(document.getElementById('save-deposit').value);
-            if(amt > 0) {
-                state.savings += amt;
-                document.getElementById('save-deposit').value = '';
-                sync();
-            }
+        // --- 4. SAVINGS & SETTINGS ---
+        function addVaultSaving() {
+            const val = parseFloat(document.getElementById('v-deposit').value);
+            if(val > 0) { db.vault += val; document.getElementById('v-deposit').value = ''; sync(); }
         }
 
-        function updateAllSettings() {
-            state.config.name = document.getElementById('set-name').value;
-            state.config.budget = parseFloat(document.getElementById('set-budget').value) || 0;
-            state.config.goal = document.getElementById('set-goal').value;
-            state.config.target = parseFloat(document.getElementById('set-target').value) || 0;
-            sync();
-            alert("Profile successfully updated.");
+        function saveAllSettings() {
+            db.settings.name = document.getElementById('s-name').value;
+            db.settings.budget = parseFloat(document.getElementById('s-budget').value);
+            db.settings.target = parseFloat(document.getElementById('s-target').value);
+            db.settings.goal = document.getElementById('s-goal').value;
+            db.settings.limits.Food = parseFloat(document.getElementById('l-food').value);
+            db.settings.limits.Transport = parseFloat(document.getElementById('l-transport').value);
+            db.settings.limits.Bills = parseFloat(document.getElementById('l-bills').value);
+            db.settings.limits.Other = parseFloat(document.getElementById('l-other').value);
+            sync(); alert("All Settings Saved!");
         }
 
-        // --- CORE SYNC & RENDER ---
-        function sync() {
-            localStorage.setItem('EXPENSE_PRO_ULTRA', JSON.stringify(state));
-            refreshUI();
-        }
+        // --- 5. REFRESH & ANALYTICS ---
+        function sync() { localStorage.setItem('EXP_PRO_ENT', JSON.stringify(db)); refresh(); }
 
-        function refreshUI() {
-            document.getElementById('user-display').innerText = state.config.name;
-            document.getElementById('today-date').innerText = new Date().toDateString();
-            
-            // Dashboard Table
-            let total = 0;
-            const body = document.getElementById('exp-body');
+        function refresh() {
+            const now = new Date();
+            let dayTotal = 0, monthTotal = 0, yearTotal = 0, overall = 0;
+            const catTotals = { Food:0, Transport:0, Bills:0, Other:0 };
+            const body = document.getElementById('table-body');
             body.innerHTML = '';
-            state.expenses.forEach(e => {
-                total += e.amt;
-                body.innerHTML += `
-                    <tr>
-                        <td>${e.date}</td>
-                        <td style="font-weight:600">${e.desc}</td>
-                        <td><span class="badge bg-${e.cat.toLowerCase()}">${e.cat}</span></td>
-                        <td style="font-weight:700">Rs. ${e.amt.toLocaleString()}</td>
-                        <td class="action-icons">
-                            <i class="fa-solid fa-pen-to-square" onclick="editTransaction(${e.id})"></i>
-                            <i class="fa-solid fa-trash" onclick="deleteTransaction(${e.id})"></i>
-                        </td>
-                    </tr>
-                `;
+
+            db.expenses.forEach(e => {
+                const eDate = new Date(e.timestamp);
+                overall += e.amt;
+                catTotals[e.cat] += e.amt;
+
+                if(eDate.toDateString() === now.toDateString()) dayTotal += e.amt;
+                if(eDate.getMonth() === now.getMonth() && eDate.getFullYear() === now.getFullYear()) monthTotal += e.amt;
+                if(eDate.getFullYear() === now.getFullYear()) yearTotal += e.amt;
+
+                body.innerHTML += `<tr><td>${e.date}</td><td style="font-weight:600">${e.desc}</td><td><span class="badge bg-${e.cat.toLowerCase()}">${e.cat}</span></td><td>Rs. ${e.amt.toLocaleString()}</td><td class="action-icons"><i class="fa-solid fa-pen" onclick="editItem(${e.id})"></i><i class="fa-solid fa-trash" onclick="deleteItem(${e.id})"></i></td></tr>`;
             });
 
-            // Summary Stats
-            document.getElementById('total-spent-val').innerText = "Rs. " + total.toLocaleString();
-            document.getElementById('budget-val').innerText = "Rs. " + state.config.budget.toLocaleString();
-            document.getElementById('savings-val').innerText = "Rs. " + state.savings.toLocaleString();
+            // UI Updates
+            document.getElementById('display-name').innerText = db.settings.name;
+            document.getElementById('display-date').innerText = now.toDateString();
+            document.getElementById('val-day').innerText = "Rs. " + dayTotal.toLocaleString();
+            document.getElementById('val-month').innerText = "Rs. " + monthTotal.toLocaleString();
+            document.getElementById('val-budget').innerText = "Rs. " + (db.settings.budget - monthTotal).toLocaleString();
+            document.getElementById('val-savings').innerText = "Rs. " + db.vault.toLocaleString();
+            document.getElementById('an-year').innerText = "Rs. " + yearTotal.toLocaleString();
+            document.getElementById('an-overall').innerText = "Rs. " + overall.toLocaleString();
 
-            // Savings View
-            document.getElementById('goal-title').innerText = state.config.goal;
-            document.getElementById('save-current').innerText = state.savings.toLocaleString();
-            document.getElementById('save-target').innerText = state.config.target.toLocaleString();
-            const pct = (state.savings / state.config.target) * 100 || 0;
-            document.getElementById('save-progress').style.width = Math.min(pct, 100) + "%";
-            document.getElementById('save-percent-text').innerText = Math.round(pct) + "% completed";
+            // AI Insight Logic
+            const insight = document.getElementById('ai-insight');
+            if(monthTotal > db.settings.budget) insight.innerText = "CRITICAL: You have exceeded your monthly budget!";
+            else if(monthTotal > db.settings.budget * 0.8) insight.innerText = "Warning: You have used 80% of your budget.";
+            else insight.innerText = "Your spending is healthy. Keep it up!";
 
-            // Settings Fields
-            document.getElementById('set-name').value = state.config.name;
-            document.getElementById('set-budget').value = state.config.budget;
-            document.getElementById('set-goal').value = state.config.goal;
-            document.getElementById('set-target').value = state.config.target;
+            // Category Meters
+            const meterGrid = document.getElementById('cat-meters');
+            meterGrid.innerHTML = '';
+            for(let cat in catTotals) {
+                const limit = db.settings.limits[cat];
+                const spent = catTotals[cat];
+                const pct = Math.min((spent / limit) * 100, 100);
+                const color = pct > 90 ? 'var(--danger)' : pct > 70 ? 'var(--warning)' : 'var(--primary)';
+                meterGrid.innerHTML += `<div class="meter-card"><strong>${cat}</strong><div class="p-bar"><div class="p-fill" style="width:${pct}%; background:${color}"></div></div><small>Rs. ${spent} / ${limit}</small></div>`;
+            }
 
-            // AI Insights
-            const insight = document.getElementById('ai-suggestion');
-            if (total > state.config.budget) insight.innerHTML = `<strong>Over Budget:</strong> You have exceeded your limit by Rs. ${(total - state.config.budget).toLocaleString()}!`;
-            else if (total > state.config.budget * 0.8) insight.innerText = "Careful! You have used 80% of your monthly budget.";
-            else insight.innerText = `You have Rs. ${(state.config.budget - total).toLocaleString()} left to spend this month.`;
+            // Vault Update
+            document.getElementById('vault-goal-name').innerText = db.settings.goal;
+            document.getElementById('v-curr').innerText = db.vault.toLocaleString();
+            document.getElementById('v-tar').innerText = db.settings.target.toLocaleString();
+            const vPct = (db.vault / db.settings.target) * 100 || 0;
+            document.getElementById('v-fill').style.width = Math.min(vPct, 100) + "%";
+            document.getElementById('v-pct').innerText = Math.round(vPct) + "% Target Met";
+
+            // Sync Settings Inputs
+            document.getElementById('s-name').value = db.settings.name;
+            document.getElementById('s-budget').value = db.settings.budget;
+            document.getElementById('s-target').value = db.settings.target;
+            document.getElementById('s-goal').value = db.settings.goal;
+            document.getElementById('l-food').value = db.settings.limits.Food;
+            document.getElementById('l-transport').value = db.settings.limits.Transport;
+            document.getElementById('l-bills').value = db.settings.limits.Bills;
+            document.getElementById('l-other').value = db.settings.limits.Other;
         }
 
-        // --- EXPORTS ---
+        // --- 6. EXPORTS ---
         function exportPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            doc.setFontSize(22); doc.setTextColor(79, 70, 229);
-            doc.text("ExpensePro Financial Report", 14, 20);
-            doc.setFontSize(10); doc.setTextColor(100);
-            doc.text(`User: ${state.config.name} | Date: ${new Date().toDateString()}`, 14, 28);
-            
-            const tableData = state.expenses.map(e => [e.date, e.desc, e.cat, `Rs. ${e.amt}`]);
-            doc.autoTable({ startY: 35, head: [['Date', 'Item', 'Category', 'Amount']], body: tableData, theme: 'striped' });
+            doc.text("ExpensePro Enterprise Report", 14, 20);
+            const rows = db.expenses.map(e => [e.date, e.desc, e.cat, `Rs. ${e.amt}`]);
+            doc.autoTable({ startY: 25, head: [['Date', 'Item', 'Category', 'Amount']], body: rows });
             doc.save("Finance_Report.pdf");
         }
 
         function exportCSV() {
             let csv = "Date,Item,Category,Amount\n";
-            state.expenses.forEach(e => csv += `${e.date},${e.desc},${e.cat},${e.amt}\n`);
+            db.expenses.forEach(e => csv += `${e.date},${e.desc},${e.cat},${e.amt}\n`);
             const blob = new Blob([csv], { type: 'text/csv' });
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'backup.csv'; a.click();
         }
 
-        refreshUI();
+        refresh();
     </script>
 </body>
 </html>
